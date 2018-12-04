@@ -7,6 +7,25 @@ use App\Http\Controllers\Controller;
 
 class SocialAccountController extends Controller
 {
+
+    public function redirectToProvider($provider)
+    {
+        return Socialite::driver($provider)->redirect();
+    }
+
+    public function handleProviderCallback($provider)
+    {
+        try{
+            $user = Socialite::driver($provider)->user();
+        } catch (Exception $e) {
+            return redirect('login');
+        }
+
+        $authUser = $this->findOrCreateUser($user, $provider);
+        Auth::login($authUser, true);
+
+        return redirect($this->redirectTo);
+    }
     /**
      * Display a listing of the resource.
      *
